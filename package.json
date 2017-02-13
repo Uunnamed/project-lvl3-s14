@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Uunnamed/project-lvl2-s13.git"
+    "url": "git+https://github.com/Uunnamed/project-lvl3-s14.git"
   },
   "author": "Uunnamed",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Uunnamed/project-lvl2-s13/issues"
+    "url": "https://github.com/Uunnamed/project-lvl3-s14/issues"
   },
-  "homepage": "https://github.com/Uunnamed/project-lvl2-s13#readme",
+  "homepage": "https://github.com/Uunnamed/project-lvl3-s14#readme",
   "devDependencies": {
     "babel-cli": "*",
     "babel-core": "*",
