@@ -1,0 +1,52 @@
+{
+  "name": "page_loader_uunnamed",
+  "version": "0.0.1",
+  "description": "It's cli util for download & save internet pages",
+  "main": "dist/index.js",
+  "bin": {
+    "gendiff": "dist/bin/page-loader.js"
+  },
+  "scripts": {
+    "babel-node": "babel-node",
+    "flow": "flow",
+    "flow-typed": "flow-typed",
+    "eslint": "eslint src/",
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "prepublish": "npm run build",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Uunnamed/project-lvl2-s13.git"
+  },
+  "author": "Uunnamed",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Uunnamed/project-lvl2-s13/issues"
+  },
+  "homepage": "https://github.com/Uunnamed/project-lvl2-s13#readme",
+  "devDependencies": {
+    "babel-cli": "*",
+    "babel-core": "*",
+    "babel-eslint": "*",
+    "babel-plugin-syntax-flow": "*",
+    "babel-plugin-transform-flow-strip-types": "*",
+    "babel-preset-env": "*",
+    "babel-preset-stage-0": "*",
+    "eslint": "*",
+    "eslint-config-airbnb": "*",
+    "eslint-plugin-flowtype": "*",
+    "eslint-plugin-import": "*",
+    "flow-bin": "*",
+    "flow-typed": "*",
+    "jest": "*"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      ".page_loader/__tests__/__fixtures__/"
+    ]
+  },
+  "dependencies": {
+    "commander": "*"
+  }
+}
