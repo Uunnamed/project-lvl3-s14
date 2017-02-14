@@ -9,6 +9,6 @@ program
   .option('-O, --output [path]', 'path to save file')
   .arguments('<link-for-download>')
   .action((link) => {
-    download(link, program.output).then(fname => console.log(`Page was downloaded as '${fname}'`));
+    download(link, program.output).then(res => console.log(res));
   });
 program.parse(process.argv);
