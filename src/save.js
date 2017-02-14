@@ -15,7 +15,7 @@ const save = (data, pathToSave, link) => {
   } catch (e) {
     fs.mkdirSync(fpath);
   }
-  fs.writeFileSync(fpath + path.sep + fname, data, 'utf-8');
+  fs.writeFileSync(path.join(fpath, fname), data, 'utf-8');
   return fname;
 };
 
