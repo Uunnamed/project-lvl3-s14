@@ -6,10 +6,12 @@ import nock from 'nock';
 import download from '../src';
 
 axios.defaults.adapter = httpAdapter;
+
 const tmpDir = './__tests__/__fixtures__';
 const fpath = fs.mkdtempSync(tmpDir + path.sep);
 const fname = 'hexlet-io-courses.html';
 const testData = 'Test';
+
 nock('http://hexlet.io/')
       .get('/courses')
       .reply(200, testData);
