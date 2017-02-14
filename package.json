@@ -1,10 +1,10 @@
 {
   "name": "page_loader_uunnamed",
   "version": "0.0.1",
-  "description": "It's cli util for download & save internet pages",
+  "description": "It's cli util for download & save web pages",
   "main": "dist/index.js",
   "bin": {
-    "gendiff": "dist/bin/page-loader.js"
+    "page-loader": "dist/bin/page-loader.js"
   },
   "scripts": {
     "babel-node": "babel-node",
@@ -39,7 +39,8 @@
     "eslint-plugin-import": "*",
     "flow-bin": "*",
     "flow-typed": "*",
-    "jest": "*"
+    "jest": "*",
+    "nock": "^9.0.5"
   },
   "jest": {
     "testPathIgnorePatterns": [
@@ -47,6 +48,7 @@
     ]
   },
   "dependencies": {
+    "axios": "^0.15.3",
     "commander": "*"
   }
 }
