@@ -9,13 +9,8 @@ const getFileName = (link) => {
 
 const save = (data, pathToSave, link) => {
   const fname = getFileName(link);
-  const fpath = path.resolve(`${pathToSave[0] === '.' ? pathToSave : `.${pathToSave}`}`);
-  try {
-    fs.accessSync(fpath, 'w');
-  } catch (e) {
-    fs.mkdirSync(fpath);
-  }
-  fs.writeFileSync(path.join(fpath, fname), data, 'utf-8');
+  const fpath = path.resolve(pathToSave, fname);
+  fs.writeFileSync(fpath, data, 'utf-8');
   return fname;
 };
 
