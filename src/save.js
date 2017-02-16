@@ -1,8 +1,8 @@
-import fs from 'fs';
+import fs from 'mz/fs';
 import path from 'path';
 import url from 'url';
 import cheerio from 'cheerio';
-import { flatten } from 'lodash';
+import { flatMap } from 'lodash';
 import axios from '../lib/axios';
 
 
@@ -21,15 +21,13 @@ const getFileName = (link) => {
 const saveFile = (data, pathToSave, link) => {
   const fname = getFileName(link);
   const fpath = path.resolve(pathToSave, fname);
-  fs.writeFileSync(fpath, data, 'utf-8');
-  return fname;
+  return fs.writeFile(fpath, data, 'utf-8').then(() => fname);
 };
 
 const getLinks = (data) => {
   const $ = cheerio.load(data);
-  const links = flatten(Object.keys(ParseTags).map(tag => [...$(tag).map((i, el) =>
-    $(el).attr(ParseTags[tag]),
-  )]));
+  const links = flatMap(Object.keys(ParseTags), tag =>
+    [...$(tag).map((i, el) => $(el).attr(ParseTags[tag]))]);
   return links.filter(e => !!e);
 };
 
@@ -46,8 +44,8 @@ const downloadLinks = (links, pathToSave) => {
   const logLoad = new Set();
   const loader = link => axios.get(link, { baseURL: link, responseType: 'arraybuffer' })
                             .then((resp) => {
-                              saveFile(resp.data, pathToSave, resp.config.baseURL);
-                              logLoad.add(`loaded - ${resp.config.baseURL}`);
+                              saveFile(resp.data, pathToSave, resp.config.baseURL)
+                              .then(() => logLoad.add(`loaded - ${resp.config.baseURL}`));
                             })
                             .catch(error => logLoad.add(`no_loaded - ${error.config.baseURL}`));
   return Promise.all(links.map(loader)).then(() => logLoad).catch(() => logLoad);
@@ -57,10 +55,14 @@ const save = (data, pathToSave, link) => {
   const links = getLinks(data);
   const dirName = geDirName(link);
   const pathToDir = path.resolve(pathToSave, dirName);
-  fs.mkdirSync(pathToDir);
+  const makeDir = fs.exists(pathToDir).then(err => err || fs.mkdir(pathToDir));
   const newData = replaceLinks(data, dirName, links);
-  const baseFile = saveFile(newData, pathToSave, link);
-  return downloadLinks(links, pathToDir).then(logLoad => [baseFile, logLoad]);
+  const makeBaseFile = saveFile(newData, pathToSave, link);
+  const nameBaseFile = getFileName(link);
+  return makeBaseFile
+    .then(() => makeDir)
+    .then(() => downloadLinks(links, pathToDir))
+    .then(logLoad => [nameBaseFile, logLoad]);
 };
 
 
