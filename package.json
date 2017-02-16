@@ -50,6 +50,7 @@
   "dependencies": {
     "axios": "^0.15.3",
     "cheerio": "^0.22.0",
-    "commander": "*"
+    "commander": "*",
+    "lodash": "^4.17.4"
   }
 }

@@ -18,8 +18,10 @@ export default (link, path = '.') =>
     if (err) {
       return message;
     }
-    const file = save(response.data, path, link);
-    const result = `Page was downloaded as '${path}/${file}'`;
-    return result;
+    return save(response.data, path, link)
+      .then((result) => {
+        const [file, logLoad] = result;
+        return `${Array.from(logLoad).join('\n')}\nPage was downloaded as '${file}'`;
+      });
   })
   .catch(error => error);
