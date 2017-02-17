@@ -45,7 +45,7 @@ const downloadLinks = (links, pathToSave) => {
   const loader = link => axios.get(link, { baseURL: link, responseType: 'arraybuffer' })
                             .then((resp) => {
                               saveFile(resp.data, pathToSave, resp.config.baseURL)
-                              .then(() => logLoad.add(`loaded - ${resp.config.baseURL}`));
+                                .then(() => logLoad.add(`loaded - ${resp.config.baseURL}`));
                             })
                             .catch(error => logLoad.add(`no_loaded - ${error.config.baseURL}`));
   return Promise.all(links.map(loader)).then(() => logLoad).catch(() => logLoad);
@@ -64,6 +64,5 @@ const save = (data, pathToSave, link) => {
     .then(() => downloadLinks(links, pathToDir))
     .then(logLoad => [nameBaseFile, logLoad]);
 };
-
 
 export default save;
