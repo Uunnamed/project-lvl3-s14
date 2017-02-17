@@ -1,7 +1,9 @@
 import fs from 'mz/fs';
 import path from 'path';
 import url from 'url';
+import os from 'os';
 import cheerio from 'cheerio';
+import ncp from 'ncp';
 import { flatMap } from 'lodash';
 import axios from '../lib/axios';
 
@@ -40,29 +42,35 @@ const geDirName = (link) => {
   return `${fname.slice(0, -extFname.length)}_files`;
 };
 
-const downloadLinks = (links, pathToSave) => {
+const downloadLinks = async (links, pathToSave) => {
   const logLoad = new Set();
-  const loader = link => axios.get(link, { baseURL: link, responseType: 'arraybuffer' })
-                            .then((resp) => {
-                              saveFile(resp.data, pathToSave, resp.config.baseURL)
-                                .then(() => logLoad.add(`loaded - ${resp.config.baseURL}`));
-                            })
-                            .catch(error => logLoad.add(`no_loaded - ${error.config.baseURL}`));
-  return Promise.all(links.map(loader)).then(() => logLoad).catch(() => logLoad);
+  const loader = link =>
+    axios.get(link, { baseURL: link, responseType: 'arraybuffer' })
+      .then(async (resp) => {
+        await saveFile(resp.data, pathToSave, resp.config.baseURL);
+        logLoad.add(`loaded - ${resp.config.baseURL}`);
+      })
+      .catch(error => logLoad.add(`no_loaded - ${error.config.baseURL}`));
+  await Promise.all(links.map(loader));
+  return logLoad;
 };
 
-const save = (data, pathToSave, link) => {
+const moveDir = (from, to) =>
+  new Promise((resolve, reject) => {
+    ncp(from, to, err => (err ? reject(err) : resolve()));
+  });
+
+const save = async (data, pathToSave, link) => {
+  const tmpPath = await fs.mkdtemp(`${path.resolve(os.tmpdir())}${path.sep}`);
   const links = getLinks(data);
   const dirName = geDirName(link);
-  const pathToDir = path.resolve(pathToSave, dirName);
-  const makeDir = fs.exists(pathToDir).then(err => err || fs.mkdir(pathToDir));
+  const pathToDir = path.resolve(tmpPath, dirName);
+  await fs.mkdir(pathToDir);
   const newData = replaceLinks(data, dirName, links);
-  const makeBaseFile = saveFile(newData, pathToSave, link);
-  const nameBaseFile = getFileName(link);
-  return makeBaseFile
-    .then(() => makeDir)
-    .then(() => downloadLinks(links, pathToDir))
-    .then(logLoad => [nameBaseFile, logLoad]);
+  const nameBaseFile = await saveFile(newData, tmpPath, link);
+  const logLoad = await downloadLinks(links, pathToDir);
+  await moveDir(tmpPath, path.resolve(pathToSave));
+  return [nameBaseFile, logLoad];
 };
 
 export default save;
