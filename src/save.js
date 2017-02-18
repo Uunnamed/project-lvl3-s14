@@ -1,3 +1,4 @@
+// @flow
 import fs from 'mz/fs';
 import path from 'path';
 import url from 'url';
@@ -60,15 +61,16 @@ const moveDir = (from, to) =>
     ncp(from, to, err => (err ? reject(err) : resolve()));
   });
 
-const save = async (data, pathToSave, link) => {
+
+const save = async (data: string, pathToSave: string, link: string) => {
   const tmpPath = await fs.mkdtemp(`${path.resolve(os.tmpdir())}${path.sep}`);
   const links = getLinks(data);
-  const dirName = geDirName(link);
-  const pathToDir = path.resolve(tmpPath, dirName);
-  await fs.mkdir(pathToDir);
-  const newData = replaceLinks(data, dirName, links);
+  const nameContentDir = geDirName(link);
+  const pathContentDir = path.resolve(tmpPath, nameContentDir);
+  await fs.mkdir(pathContentDir);
+  const newData = replaceLinks(data, nameContentDir, links);
   const nameBaseFile = await saveFile(newData, tmpPath, link);
-  const logLoad = await downloadLinks(links, pathToDir);
+  const logLoad = await downloadLinks(links, pathContentDir);
   await moveDir(tmpPath, path.resolve(pathToSave));
   return [nameBaseFile, logLoad];
 };
