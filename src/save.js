@@ -5,6 +5,7 @@ import url from 'url';
 import os from 'os';
 import cheerio from 'cheerio';
 import ncp from 'ncp';
+import Multispinner from 'multispinner';
 import { flatMap } from 'lodash';
 import axios from '../lib/axios';
 
@@ -44,16 +45,19 @@ const geDirName = (link) => {
 };
 
 const downloadLinks = async (links, pathToSave) => {
-  const logLoad = new Set();
-  const loader = link =>
-    axios.get(link, { baseURL: link, responseType: 'arraybuffer' })
-      .then(async (resp) => {
-        await saveFile(resp.data, pathToSave, resp.config.baseURL);
-        logLoad.add(`loaded - ${resp.config.baseURL}`);
-      })
-      .catch(error => logLoad.add(`no_loaded - ${error.config.baseURL}`));
-  await Promise.all(links.map(loader));
-  return logLoad;
+  const multispinner = new Multispinner([...links], { preText: 'Downloading', interval: 0 });
+  multispinner.on('done', () => console.log('Completed'));
+  const loader = async (link) => {
+    try {
+      const res = await axios.get(link, { responseType: 'arraybuffer' });
+      multispinner.success(link);
+      return saveFile(res.data, pathToSave, link);
+    } catch (e) {
+      multispinner.error(link);
+      return e;
+    }
+  };
+  return Promise.all(links.map(loader));
 };
 
 const moveDir = (from, to) =>
@@ -70,9 +74,9 @@ const save = async (data: string, pathToSave: string, link: string) => {
   await fs.mkdir(pathContentDir);
   const newData = replaceLinks(data, nameContentDir, links);
   const nameBaseFile = await saveFile(newData, tmpPath, link);
-  const logLoad = await downloadLinks(links, pathContentDir);
+  await downloadLinks(links, pathContentDir);
   await moveDir(tmpPath, path.resolve(pathToSave));
-  return [nameBaseFile, logLoad];
+  return nameBaseFile;
 };
 
 export default save;

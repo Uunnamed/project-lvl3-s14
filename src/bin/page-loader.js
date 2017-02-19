@@ -8,7 +8,7 @@ program
   .description('It\'s cli util for download & save web pages')
   .option('-O, --output [path]', 'path to save file')
   .arguments('<link-for-download>')
-  .action((link) => {
-    download(link, program.output).then(res => console.log(res));
+  .action(async (link) => {
+    console.log(await download(link, program.output));
   });
 program.parse(process.argv);
