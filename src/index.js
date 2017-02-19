@@ -11,6 +11,6 @@ export default async (link: string, pathToSave: string = './') => {
     const file = await save(response.data, pathToSave, link);
     return `Page was downloaded as '${file}'`;
   } catch (e) {
-    return getErrorMessage(e, link, pathToSave);
+    return getErrorMessage(e, link);
   }
 };

@@ -1,5 +1,5 @@
 // @flow
-import FsErrors from './SysErrors';
+import SysErrors from './SysErrors';
 import WebErrors from './WebErrors';
 
 const typeErrors = {
@@ -10,11 +10,11 @@ const typeErrors = {
 const getTypeErr = e => Object.keys(typeErrors).filter(key => typeErrors[key](e))[0];
 
 const getClassErr = {
-  sys: (...args) => new FsErrors(...args),
-  web: (...args) => new WebErrors(...args),
+  sys: (e, link) => new SysErrors(e, link),
+  web: e => new WebErrors(e),
 };
 
-export default (e: Object, link: string, pathToSave: string) => {
+export default (e: Object, link: string) => {
   const type = getTypeErr(e);
-  return type ? getClassErr[type](e, link, pathToSave).getMessage() : e;
+  return type ? getClassErr[type](e, link).getMessage() : e;
 };

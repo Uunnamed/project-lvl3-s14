@@ -13,13 +13,15 @@ import axios from './lib/axios';
 const ParseTags = {
   link: 'href',
   script: 'src',
+  img: 'src',
+  a: 'href',
 };
 
 const getFileName = (link) => {
   const { hostname, pathname } = url.parse(link);
   const ext = path.extname(pathname);
   const newPathname = ext ? pathname.slice(0, -ext.length) : pathname;
-  return `${`${hostname}${newPathname}`.split(/[\W]+/).filter(e => !!e).join('-')}${ext || '.html'}`;
+  return `${`${hostname || ''}${newPathname}`.split(/[\W]+/).filter(e => !!e).join('-')}${ext || '.html'}`;
 };
 
 const saveFile = (data, pathToSave, link) => {
@@ -35,8 +37,15 @@ const getLinks = (data) => {
   return links.filter(e => !!e);
 };
 
-const replaceLinks = (data, dirName, links) =>
-  links.reduce((acc, link) => acc.replace(link, `${dirName}/${getFileName(link)}`), data);
+const getFullLink = (link, mainLink) => {
+  const { protocol, host } = url.parse(mainLink);
+  return (link[0] === 'h'
+    ? link
+    : url.format({ protocol, hostname: host, pathname: link }));
+};
+
+const replaceLinks = (data, dirName, links, mainLink) =>
+  links.reduce((acc, link) => acc.replace(link, `${dirName}/${getFileName(getFullLink(link, mainLink))}`), data);
 
 const geDirName = (link) => {
   const fname = getFileName(link);
@@ -45,7 +54,7 @@ const geDirName = (link) => {
 };
 
 const downloadLinks = async (links, pathToSave) => {
-  const multispinner = new Multispinner([...links], { preText: 'Downloading', interval: 0 });
+  const multispinner = new Multispinner([...links], { preText: 'Downloading', interval: 180, clear: true });
   multispinner.on('done', () => console.log('Completed'));
   const loader = async (link) => {
     try {
@@ -66,15 +75,16 @@ const moveDir = (from, to) =>
   });
 
 
-const save = async (data: string, pathToSave: string, link: string) => {
+const save = async (data: string, pathToSave: string, mainLink: string) => {
   const tmpPath = await fs.mkdtemp(`${path.resolve(os.tmpdir())}${path.sep}`);
   const links = getLinks(data);
-  const nameContentDir = geDirName(link);
+  const nameContentDir = geDirName(mainLink);
   const pathContentDir = path.resolve(tmpPath, nameContentDir);
   await fs.mkdir(pathContentDir);
-  const newData = replaceLinks(data, nameContentDir, links);
-  const nameBaseFile = await saveFile(newData, tmpPath, link);
-  await downloadLinks(links, pathContentDir);
+  const newData = replaceLinks(data, nameContentDir, links, mainLink);
+  const nameBaseFile = await saveFile(newData, tmpPath, mainLink);
+  const fullLinks = Array.from(new Set(links.map(l => getFullLink(l, mainLink))));
+  await downloadLinks(fullLinks, pathContentDir);
   await moveDir(tmpPath, path.resolve(pathToSave));
   return nameBaseFile;
 };
