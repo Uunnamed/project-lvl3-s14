@@ -1,6 +1,6 @@
 {
   "name": "page_loader_uunnamed",
-  "version": "0.0.1",
+  "version": "0.1.6",
   "description": "It's cli util for download & save web pages",
   "main": "dist/index.js",
   "bin": {

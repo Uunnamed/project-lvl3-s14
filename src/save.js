@@ -6,8 +6,8 @@ import os from 'os';
 import cheerio from 'cheerio';
 import ncp from 'ncp';
 import Multispinner from 'multispinner';
-import { flatMap } from 'lodash';
-import axios from '../lib/axios';
+import { flatMapDeep } from 'lodash';
+import axios from './lib/axios';
 
 
 const ParseTags = {
@@ -30,8 +30,8 @@ const saveFile = (data, pathToSave, link) => {
 
 const getLinks = (data) => {
   const $ = cheerio.load(data);
-  const links = flatMap(Object.keys(ParseTags), tag =>
-    [...$(tag).map((i, el) => $(el).attr(ParseTags[tag]))]);
+  const links = flatMapDeep(Object.keys(ParseTags), tag =>
+    [...$(tag).map((i, el) => $(el).attr(ParseTags[tag])).get()]);
   return links.filter(e => !!e);
 };
 

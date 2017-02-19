@@ -14,5 +14,7 @@ const getClassErr = {
   web: (...args) => new WebErrors(...args),
 };
 
-export default (e: Object, link: string, pathToSave: string) =>
-  getClassErr[getTypeErr(e)](e, link, pathToSave).getMessage();
+export default (e: Object, link: string, pathToSave: string) => {
+  const type = getTypeErr(e);
+  return type ? getClassErr[type](e, link, pathToSave).getMessage() : e;
+};

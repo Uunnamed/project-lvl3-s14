@@ -1,7 +1,7 @@
 // @flow
 import fs from 'mz/fs';
 import save from './save';
-import axios from '../lib/axios';
+import axios from './lib/axios';
 import getErrorMessage from './errors_handler/';
 
 export default async (link: string, pathToSave: string = './') => {
