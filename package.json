@@ -48,7 +48,7 @@
     ]
   },
   "dependencies": {
-    "axios": "^0.15.3",
+    "axios": "^0.18.1",
     "cheerio": "^0.22.0",
     "commander": "*",
     "lodash": "^4.17.4",
